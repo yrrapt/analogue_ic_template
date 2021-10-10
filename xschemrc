@@ -1,6 +1,6 @@
 # xschemrc configuration file
 
-set OPENPDK_DIR /usr/local/share/pdk
+set OPENPDK_DIR /home/markus/work/ZeroToASIC/install/share/pdk
 set XSCHEM_SKYDIR ${OPENPDK_DIR}/sky130A/libs.tech/xschem
 
 ###########################################################################
