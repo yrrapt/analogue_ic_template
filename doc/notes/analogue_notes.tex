@@ -4,6 +4,7 @@
 
 \documentclass[11pt]{article}
 \usepackage{hyperref}
+\usepackage{listings}
 \input{structure.tex} % Include the file specifying the document structure and custom commands
 
 %----------------------------------------------------------------------------------------
@@ -112,7 +113,7 @@ The transconductance can be expressed as a function of the bias current, giving 
 
 \subsection{Transconductance Efficiency and Overdrive Voltage}
 
-There is a relation to the overdrive voltage mentioned above, $V_{OD}$. The higher the $V_{OD}$, the more the FET is 'turned on', and therefore the more the FET channel is inverted, which leads to a \textit{lower} $g_m / I_d$. Conversly, a lower $V_{OD}$ turns on the FET less, and therefore the FET channel is less inverted, which leads to a \textit{higher} $g_m / I_d$.
+There is a relation to the overdrive voltage mentioned above, $V_{OD}$. The higher the $V_{OD}$, the more the FET is 'turned on', and therefore the more the FET channel is inverted, which leads to a \textit{lower} $g_m / I_d$. Conversely, a lower $V_{OD}$ turns on the FET less, and therefore the FET channel is less inverted, which leads to a \textit{higher} $g_m / I_d$.
 
 \subsection{Realistic Values of Transconductance Efficiency}
 
@@ -136,5 +137,175 @@ For example, if I have determined I will use a FET in weak inversion and I need 
 \hspace{1cm} \href{http://web02.gonzaga.edu/faculty/talarico/EE406/documents/gmid.pdf}{gm/ID - Based Design}
 
 \hspace{1cm} \href{http://web.eecs.utk.edu/~bblalock/ece532/ece532_pres_ekv_bsim.pdf}{An Introduction to the EKV Model and a comparison of EKV to BSIM}
+
+\newpage
+\section{Noise, Offset and Transconducance}
+
+\subsection{Noise}
+
+Considering only thermal noise the drain noise in a MOSFET is given by:
+
+\begin{equation}
+\frac{i^2_{n,d}}{\Delta f} = 4 K T \gamma g_{do}
+\end{equation}
+
+Where the $ K $ is the Boltzmann's constant and $T$ is absolute temperature. We will set the device specific parameter $\gamma=1$ for simplicity. The zero bias drain conductance, $g_{do}$, can be approximated to $ g_m $.
+
+\begin{equation}
+\frac{i^2_{n,d}}{\Delta f} \approx 4 K T g_{m}
+\end{equation}
+
+So now we can see that the current noise in the drain of a MOSFET \textbf{increases} with increasing transconductance. However, to complete the story we can also refer the noise to the gate. To do this we divide the noise power above by the power transfer function of the MOSFET, $g^2_{m}$, to give:
+
+\begin{equation}
+\frac{v^2_{n,d}}{\Delta f} \approx \frac{4 K T}{ g_{m} }
+\end{equation}
+
+Now we see that expressed as a input referred noise source the noise \textbf{decreases} with increasing $g_{m}$. This is because the increasing gain of the MOSFET overpowers the increasing noise in the channel. The result also complies with the intuition formed by Friis' equation.
+
+
+\subsection{Offset}
+
+All MOSFETs are fabricated with random variations which exhibit as mismatch offset between ideally identical devices. The largest contributor to offset is due to the gate-source threshold voltage offset. Pelgrom proposed the following model for offset which is widely adopted:
+
+\begin{equation}
+\sigma_{\Delta V_{TH}} = \frac{A_{VTH}}{\sqrt{WL}}
+\end{equation}
+
+This states that the standard deviation of the mismatch between two devices is a process specific value divided by the square root of the area of the device (assuming both devices are identical). The SKY130 process does not have a published figure for $A_{VTH}$ but using $10 \ mV \mu m$ is reasonable.
+
+Consider the small signal description of the FETs transfer:
+
+\begin{equation}
+i = g_m \cdot v_{GS}
+\end{equation}
+
+Where we then add an offset:
+
+\begin{equation}
+i = g_m \cdot ( v_{GS} + \Delta V_{TH} )
+\end{equation}
+
+We can see that the offset voltage is transferred to the current as a function of $g_m$. So for small drain current offset we need a low $g_m$.
+
+Considering a voltage amplilfier, the original threshold offset cannot be improved but any offset further down the system can be modelled as input referred but divided by $g_m$. Therefore, we want a high $g_m$, this tracks with Friis' equation.
+
+
+\newpage
+\section{The Current Mirror}
+
+The most important circuit in analogue design is the current mirror. This circuit is used as the building block for a huge amount of applications.
+
+\begin{figure}[h]
+\centering{
+\includegraphics[scale=1.00]{diagrams/current_mirror.pdf}
+}
+\end{figure}
+
+\subsection{Circuit Operation}
+
+The input current is fed into a diode-connected FET. This diode-connected FET generates a voltage on it's gate which is approximately equal to:
+
+\begin{equation}
+V_{GS} = \sqrt{I_{IN} \frac{1}{K_n} \frac{L}{W}} + V_{TH}
+\end{equation}
+
+This voltage is then applied to the gate of the second FET. Assuming the sizes are the same, the output current will then match the input current. If the sizes are different then the output current is scaled by:
+
+\begin{equation}
+I_{OUT} = {\left(\frac{W}{L}\right)}_{OUT} \cdot {\left(\frac{L}{W}\right)}_{IN}
+\end{equation}
+
+To have good matching performance usually $L_{IN} = L_{OUT}$ and $\frac{W_{OUT}}{W_{IN}} $ is a rational number so that unit FETs can be used.
+
+\subsection{Selecting Sizes}
+
+How do we select the value of $\frac{W}{L}$? As we discussed previously the output is a current so to get the best performance for thermal noise and offset we need to use a low $g_m$. This means we need a low transconductance efficiency where the channel is heavily inverted and the overdrive voltage is high.
+
+To achieve this, generally we want a low value of $\frac{W}{L}$. Although the absolute value depends on the device used, PMOS devices have a lower charge mobility than NMOS so will require a higher $\frac{W}{L}$ ratio. Aim for a $g_m/I_d$ of 5-7 or a $V_{DS,sat}$ of 300 - 350 mV.
+
+\newpage
+\section{The Differential Pair}
+
+The differential pair is shown below. It is most commonly seen at the input of op-amp circuits but is also seen in many other places.
+
+\begin{figure}[h]
+\centering{
+\includegraphics[scale=1.00]{diagrams/differential_pair.pdf}
+}
+\end{figure}
+
+
+\subsection{Circuit Operation}
+
+The differential pair compares two voltages and splits the bias current depending on the difference between the input voltages. 
+
+If the two input voltages are equal then $V_{GS}$ is equal for both devices and both devices get half of the bias voltage. If $V_{IN+}$ is higher than $V_{IN-}$ then more current flows into $V_{OUT+}$ and less into $V_{OUT-}$, but the sum still remains the same bias current.
+
+\subsection{Selecting Sizes}
+
+As already discussed in the section on noise and offset the differential pair devices should operate with a high $g_m$ and therefore a high transconductance efficiency. Therefore the ratio of $\frac{W}{L}$ should be high. Aim for a $g_m/I_d$ of 20-25 or a $V_{DS,sat}$ of 10 - 50 mV.
+
+\newpage
+\section{Useful Circuits}
+
+\subsection{Transmission Gate}
+
+A building block switch made of one or more FETs. The control signals are digital and the terminals $A$ and $B$ are analogue.
+
+\begin{figure}[h]
+\centering{
+\includegraphics[scale=1.00]{diagrams/transmission_gate.pdf}
+}
+\end{figure}
+
+Important factors:
+
+\begin{itemize}
+  \item On resistance of switch
+  \item Charge injection
+\end{itemize}
+
+
+\subsection{5T Op-Amp}
+
+A simple two stage op-amp circuit with differential inputs and current output. Stability can be improved with a Miller capacitor across the output stage.
+
+\begin{figure}[h]
+\centering{
+\includegraphics[scale=1.00]{diagrams/opamp_5t.pdf}
+}
+\end{figure}
+
+Important factors:
+
+\begin{itemize}
+  \item Input/Output Voltage Ranges
+  \item Gain
+  \item Bandwidth
+  \item Stability
+  \item Noise
+  \item Slew Rate
+\end{itemize}
+
+\newpage
+\section{NGSpice Notes}
+
+\subsection{Saving Operating Parameters}
+
+To save the operating parameters in NGSpice outputs the following syntax needs to be used:
+
+\begin{lstlisting}
+    .save all @M.x1.XMcas_p.msky130_fd_pr__pfet_01v8[vdsat]
+\end{lstlisting}
+
+The addition of all is to prevent NGSpice \textit{only} saving operating parameter and none of the voltages. Note that the string starts with an M for MOSFET then the dot delimited path to the transistor model. The exact transistor model needs to be used. Finally the operating parameter can be specified in square brackets. This is reqiured for every device and paramter you want to investigate.
+
+Some common parameters:
+
+\begin{lstlisting}
+    gm vdsat vds id
+\end{lstlisting}
+
 
 \end{document}
