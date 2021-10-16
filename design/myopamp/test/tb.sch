@@ -28,7 +28,7 @@ N 210 -280 230 -280 { lab=in_p}
 N 230 -280 300 -280 { lab=in_p}
 C {myopamp/myopamp.sym} 420 -230 0 0 {name=x1}
 C {devices/vsource.sym} 150 -230 0 0 {name=V1 value=1.8}
-C {devices/isource.sym} 440 -370 0 0 {name=I0 value=1m}
+C {devices/isource.sym} 440 -370 0 0 {name=I0 value=10u}
 C {devices/lab_wire.sym} 560 -230 0 0 {name=l1 sig_type=std_logic lab=out}
 C {devices/code_shown.sym} 570 -490 0 0 {name=sim only_toplevel=false value="
 .save all @m.x1.xm1.msky130_fd_pr__nfet_01v8[vdsat]
@@ -50,11 +50,11 @@ value="
 C {devices/lab_wire.sym} 210 -280 0 0 {name=l2 sig_type=std_logic lab=in_p}
 C {devices/lab_wire.sym} 290 -210 0 0 {name=l3 sig_type=std_logic lab=in_n}
 C {devices/gnd.sym} 150 -80 0 0 {name=l4 lab=GND}
-C {devices/res.sym} 560 -130 0 0 {name=R4
-value=1MEG
-footprint=1206
-device=resistor
-m=1}
 C {devices/vsource.sym} 300 -110 0 0 {name=V2 value=900m}
 C {devices/vsource.sym} 230 -110 0 0 {name=V3 value=850m}
 C {devices/sqwsource.sym} 230 -170 0 0 {name=V4 vhi=100m freq=1e6}
+C {devices/capa.sym} 560 -130 0 0 {name=C1
+m=1
+value=100f
+footprint=1206
+device="ceramic capacitor"}
