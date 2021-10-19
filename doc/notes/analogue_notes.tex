@@ -5,6 +5,9 @@
 \documentclass[11pt]{article}
 \usepackage{hyperref}
 \usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+
 \input{structure.tex} % Include the file specifying the document structure and custom commands
 
 %----------------------------------------------------------------------------------------
@@ -287,6 +290,128 @@ Important factors:
   \item Noise
   \item Slew Rate
 \end{itemize}
+
+
+
+\newpage
+\section{Opamp Verification}
+
+There are a number of standard verification measurement points for an op-amp circuit. Some of the later half may be skipped if they are not particularly important in the circuits application. The first half must be performed to have reasonable confidence in the operation of the circuit.
+
+\begin{table}[h]
+\resizebox{\textwidth}{!}{%
+\centering
+\begin{tabular}{llll}
+\textbf{Name}      & \textbf{Conditions}           & \textbf{Sim} & \textbf{Description} \\ \hline
+Operating Point    & min/max($V_{IN}$/$V_{OUT}$)   & .op          & Ensure all devices are operating in correct region (usually saturation) \\
+AC Gain            & min/max($V_{IN}$/$V_{OUT}$)   & .ac          & Simulate AC gain of opamp \\
+AC Stability       & min/max($V_{IN}$/$V_{OUT}$)   & .ac          & Simulate phase/loop gain \\
+Tranient Stability & small $V_{IN}$ step           & .tran        & Observe transient stability in response to a step function \\
+Offset             & min/max($V_{IN}$)             & .dc          & In unity gain what is the input referred offset \\
+Slew Rate          & large $V_{IN}$ step           & .tran        & Put opamp into large signal slew and ensure it meets requirements \\
+Noise              & min/max($V_{IN}$/$V_{OUT}$)   & .noise       & Simulate input referred noise performance \\
+PSRR               & min/max($V_{IN}$/$V_{OUT}$)   & .ac          & Simulate Power Supply Rejection Ratio \\
+CMRR               & min/max($V_{IN}$/$V_{OUT}$)   & .ac          & Simulate Common Mode Rejection Ratio \\
+\end{tabular}}
+\end{table}
+
+These would be repeated in a number of conditions progressively as the design matures:
+
+\begin{itemize}
+  \item Typical corner
+  \item Across all corners
+  \item Monte-Carlo random sampling
+\end{itemize}
+
+The typical corner is where the main design phase occurs, ensuring the main functional performance is as expected. Once the circuit works well in a typical conditions, the full range of environmental and manufacturing conditions need to be explored. This is normally achieved by simulating over PVT (Process, Voltage and Temperature). Usually there are five MOS corners (tt, ff, fs, sf, ss) plus passive corners, the voltage range is commonly the nominal supply +/-10\% and temperature depends on application - for commercial $0 - 85^\circ C$ is acceptable.
+
+Once these verification points have been covered and documented the circuit is ready to move to layout.
+
+\newpage
+\section{Layout}
+
+Once the schematic has been fully investigated the layout phase can begin to describe the physical implementation on silicon.
+
+\subsection{Wells}
+
+In a bulk CMOS process (like SKY130) everything is built into a common substrate with differently doped regions. Typically the substrate is P- doped before the device fabrication begins.
+
+An NMOS consists of a channel which is P- doped and N+ doped drain/source. As the electrostatic potential of the gate inverts the region below the gate with negative charge carriers (electrons) a conductive channel is formed.
+
+\begin{figure}[h]
+\centering{
+\includegraphics[scale=0.50]{diagrams/cmos_well.png}
+}
+\end{figure}
+
+
+To create PMOS devices a N- bulk is required. To achieve this a well is created in the substrate where PMOS devices can be created. An NWELL is defined and many PMOSs can be manufactured within it. It is very important to note that the NWELL is a PN junction with the substrate which forms a diode. If the NWELL is biased at a lower potential than the substrate a current will begin to flow.
+
+\subsubsection{Latchup}
+
+Once the PMOS devices have been created a structure exists which can be very destructive. The drain/source of the PMOS is P, the bulk N, the P substrate and the N drain/source of the NMOSs. This structure can form a parasitic thyristor structure with positive feedback which once triggered allows very high currents to flow causing damage to the device.
+
+
+\begin{figure}[h]
+\centering
+\begin{subfigure}{0.6\textwidth}
+  \centering
+  \includegraphics[width=1.0\linewidth]{diagrams/latchup_layout.png}
+  \caption{layout}
+\end{subfigure}%
+\begin{subfigure}{0.4\textwidth}
+  \centering
+  \includegraphics[width=0.6\linewidth]{diagrams/latchup_circuit.png}
+  \caption{circuit}
+\end{subfigure}
+\end{figure}
+
+The likelihood of latchup occurs primarly as a function of voltages applied between PN junctions, the parasitic bulk resistors and bipolar gains. To prevent latchup these causes should be dealt with in that order.
+
+The easiest way to prevent latchup is ensure that the PN junctions never get biased. This is achieved by ensuring the bulk is always at a lower potentional than any sources (for NMOS). The second step is to reduce parasitic resistors which bias the thyristor. This is achieved by reducing the distance between sources and bulk connections.
+
+\subsubsection{Triple Well}
+
+The NMOS devices can be fabricated directly into the bulk substrate but they all share a common bulk which must be connected to the lowest potentional, usually ground. This can be an issue for two main reasons. If the circuit requires the bulk of NMOSs to be connected to their source - commonly to prevent body effect in differential pairs - this is not possible with substrate based NMOSs. Secondly all the NMOS devices share a common connection, there is a bulk resistance between all NMOSs in the IC. This is very bad for interference between circuits, for example switching digital and sensitive analogue receivers. To alleviate these problems some processes provide a triple-well process. Here a deep NWELL is created in the P substrate, then another PWELL is created inside the DNWELL. NMOS devices can then be created in the new PWELL which is isolated from the P substrate.
+
+\begin{figure}[h]
+\centering{
+\includegraphics[scale=1.00]{diagrams/triple_well.png}
+}
+\end{figure}
+
+Now another level of PN junctions have been created which need to be carefully biased to ensure that currents don't flow which can cause latchup. A representation of the distrubted diodes in a triple-well NMOS is shown below.
+
+
+\begin{figure}[h]
+\centering{
+\includegraphics[scale=1.00]{diagrams/nmos_triplewell.pdf}
+}
+\end{figure}
+
+
+
+\subsubsection{Contact Rings}
+
+One of the most effective layout techniques to ensure high performance is the use of contact rings into the substrate and wells. The rings ensure that a strong connection to the bulk potentional is created. It also helps reduce interference coupling between different sections of the IC by creating lower impedance sinks or minority charge collectors depending on the relative doping of the rings.
+
+It is good practise to place a continous contact ring around all wells, collections of devices and the overall block in the substrate.
+
+\begin{figure}[h]
+\centering{
+\includegraphics[scale=0.5]{diagrams/contact_rings.png}
+}
+\end{figure}
+
+
+\subsubsection{Practical Notes On Wells}
+
+The layout and structure of the wells is the bedrock that the circuit is created in. Ensure you have a plan for the wells arrangement before you begin. The spacing of wells can also have a large impact on the layout size and arrangement. This is especially true for triple wells which require a large spacing to avoid punchthrough under higher voltages.
+
+
+
+
+
 
 \newpage
 \section{NGSpice Notes}
