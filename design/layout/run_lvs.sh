@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export SKY130A=/home/markus/work/ZeroToASIC/install/share/pdk/sky130A
+
 # check the cell name has been provided by the user
 if [ $# -eq 0 ]; then
   echo "No cell name provided"
@@ -42,7 +44,7 @@ echo " "
 
 # move to the root directory and use xschem to generate a new netlist in LVS mode
 run_dir=$PWD
-cd $PROJECT_ROOT
+cd ../../../..
 xschem -n -q -o "$run_dir" --tcl "set top_subckt 1; set bus_replacement_char {[]}" "design/$1/$1.sch"
 cd $run_dir
 
@@ -51,7 +53,7 @@ sed -i '$s,.end,.include '"$SKY130A"'\/libs.ref\/sky130_fd_sc_hd\/spice\/sky130_
 sed -i '$s,.end,.include '"$SKY130A"'\/libs.ref\/sky130_fd_sc_hs\/spice\/sky130_fd_sc_hs.spice\n.end,g' "$1.spice"
 
 # include the library passive definitions
-#sed -i '$s,.end,.include '"$SKY130A"'\/libs.ref\/sky130_fd_pr\/spice\/sky130_fd_pr__res_xhigh_po_0p35.model.spice\n.end,g' "$1.spice"
+sed -i '$s,.end,.include '"$SKY130A"'\/libs.ref\/sky130_fd_pr\/spice\/sky130_fd_pr__res_xhigh_po_0p35.model.spice\n.end,g' "$1.spice"
 
 # now compare the xschem schematic netlist and the magic extracted netlist
 netgen -batch lvs "$1_lvs.spice "$1"" ""$1".spice "$1"" "$SKY130A/libs.tech/netgen/sky130A_setup.tcl"
