@@ -11,8 +11,8 @@ N 430 -360 480 -360 { lab=bias}
 N 430 -380 430 -360 { lab=bias}
 N 480 -360 480 -320 { lab=bias}
 N 470 -320 480 -320 { lab=bias}
-N 360 -260 430 -260 { lab=vss}
 N 360 -320 430 -320 {}
+N 360 -260 430 -260 { lab=vss}
 N 360 -320 360 -260 {}
 N 320 -260 360 -260 { lab=vss}
 C {devices/ipin.sym} 320 -380 0 0 {name=p3 lab=bias}
