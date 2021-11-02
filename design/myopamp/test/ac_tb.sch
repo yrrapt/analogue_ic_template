@@ -1,4 +1,4 @@
-v {xschem version=2.9.9 file_version=1.2 }
+v {xschem version=3.0.0 file_version=1.2 }
 G {}
 K {}
 V {}
@@ -47,6 +47,16 @@ C {devices/code_shown.sym} 570 -490 0 0 {name=sim only_toplevel=false value="
 .save all @m.x1.xm8.msky130_fd_pr__pfet_g5v0d10v5[vdsat]
 
 .ac dec 10 10 1G
+
+.control
+  run
+  let dbAB=db(ac/in_n)
+  let phAB=180/pi*ph(ac/in_n)
+  plot dbAB
+  plot phAB
+  meas ac db0 when dbAB=0
+  meas ac phm find phAB at=db0
+.endc
 "}
 C {devices/code_shown.sym} 570 -590 0 0 {name=models
 only_toplevel=false
