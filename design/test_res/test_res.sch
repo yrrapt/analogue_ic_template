@@ -8,11 +8,11 @@ N 940 -530 940 -470 { lab=yyy}
 N 940 -410 940 -330 { lab=xxx}
 N 940 -330 950 -330 { lab=xxx}
 N 940 -530 950 -530 { lab=yyy}
-N 840 -440 920 -440 {}
-C {res_xhigh_po_0p69.sym} 940 -440 0 0 {name=R1
+N 840 -440 920 -440 { lab=zzz}
+C {res_xhigh_po.sym} 940 -440 0 0 {name=R1
 W=0.69
 L=1
-model=res_xhigh_po_0p69
+model=res_xhigh_po
 spiceprefix=X
 mult=1}
 C {devices/iopin.sym} 950 -530 0 0 {name=p1 lab=yyy}
