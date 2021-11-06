@@ -8,7 +8,7 @@ N 0 -510 0 -340 { lab=#net1}
 N 0 -510 320 -510 { lab=#net1}
 N 320 -510 320 -380 { lab=#net1}
 N 0 -280 0 0 { lab=GND}
-N 0 0 320 0 { lab=GND}
+N 210 0 320 0 { lab=GND}
 N 320 -240 320 0 { lab=GND}
 N 360 -420 360 -370 { lab=#net2}
 N 320 -510 360 -510 { lab=#net1}
@@ -17,21 +17,20 @@ N 450 -310 480 -310 { lab=ac}
 N 480 -310 480 -240 { lab=ac}
 N 320 0 480 0 { lab=GND}
 N 480 -180 480 0 { lab=GND}
-N 220 -330 240 -330 { lab=in_p}
-N 230 -290 240 -290 { lab=in_n}
-N 200 -330 220 -330 { lab=in_p}
 N 450 -310 450 -190 { lab=ac}
 N 430 -310 450 -310 { lab=ac}
 N 210 -190 210 -160 { lab=in_n}
 N 410 -190 450 -190 { lab=ac}
 N 210 -190 350 -190 { lab=in_n}
 N 210 -290 210 -190 { lab=in_n}
-N 210 -290 230 -290 { lab=in_n}
+N 210 -290 240 -290 { lab=in_n}
 N 210 -100 210 -80 { lab=#net3}
 N 210 -20 210 0 { lab=GND}
 N 80 -110 80 0 { lab=GND}
 N 80 -330 80 -170 { lab=in_p}
-N 80 -330 200 -330 { lab=in_p}
+N 80 -330 240 -330 { lab=in_p}
+N 80 0 210 0 { lab=GND}
+N 0 0 80 0 { lab=GND}
 C {myopamp/myopamp.sym} 340 -310 0 0 {name=x1}
 C {devices/vsource.sym} 0 -310 0 0 {name=V1 value=5}
 C {devices/isource.sym} 360 -450 0 0 {name=I0 value=10u}
@@ -69,7 +68,7 @@ C {devices/gnd.sym} 0 0 0 0 {name=l4 lab=GND}
 C {devices/vsource.sym} 210 -50 0 0 {name=V3 value="DC=0 AC=-1"}
 C {devices/capa.sym} 480 -210 0 0 {name=C1
 m=1
-value=1f
+value=100p
 footprint=1206
 device="ceramic capacitor"}
 C {devices/res_ac.sym} 380 -190 1 0 {name=R1
